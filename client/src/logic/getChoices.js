@@ -6,24 +6,13 @@ let defaultPiece = {
     hasMoved: null
 };
 
-const getMoveChoices = (piece = defaultPiece, start, attacking = false) => {
+const getMoveChoices = (piece = defaultPiece, start, pawnIsAttacking = false) => {
     const {type, color} = piece;
     let choices = [];
 
     if (type === 'pawn') {
-        if (color === 'white') {
-            choices.push([start[0] - 1, start[1]])
-        } else {
-            choices.push([start[0] + 1, start[1]])
-        }
-        if (!piece.hasMoved) {
-            if (color === 'white') {
-                choices.push([start[0] - 2, start[1]])
-            } else {
-                choices.push([start[0] + 2, start[1]])
-            }
-        }
-        if (attacking) {
+        console.log(`pawn is attacking: ${pawnIsAttacking}`);
+        if (pawnIsAttacking) {
             if (color === 'white') {
                 choices.push([start[0] - 1, start[1] + 1])
                 choices.push([start[0] - 1, start[1] - 1])
@@ -31,8 +20,20 @@ const getMoveChoices = (piece = defaultPiece, start, attacking = false) => {
                 choices.push([start[0] + 1, start[1] + 1])
                 choices.push([start[0] + 1, start[1] - 1])
             }
+        } else {
+            if (color === 'white') {
+                choices.push([start[0] - 1, start[1]])
+            } else {
+                choices.push([start[0] + 1, start[1]])
+            }
+            if (!piece.hasMoved) {
+                if (color === 'white') {
+                    choices.push([start[0] - 2, start[1]])
+                } else {
+                    choices.push([start[0] + 2, start[1]])
+                }
+            }
         }
-
     } else if (type === 'knight') {
         let longJump = [-2, 2]
         let sideHop = [-1, 1]

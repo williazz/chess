@@ -1,9 +1,9 @@
 import React from 'react';
 
 const CancelClick = ({handleOutsideClick}) => (
-    <div onClick={handleOutsideClick}>
+    <span onClick={handleOutsideClick}>
         <h1>handleOutsideClick</h1>
-    </div>
+    </span>
 )
 
 export default CancelClick;

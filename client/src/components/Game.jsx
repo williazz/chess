@@ -43,18 +43,19 @@ class Game extends React.Component {
     }
 
     toggleTurn() {
-        let {isWhiteTurn} = this;
+        let {isWhiteTurn} = this.state;
         isWhiteTurn = !isWhiteTurn
         this.setState({isWhiteTurn})
     }
 
     movePiece(start = [-1, -1], end = [-1, -1]) {
 
-        const piece = this.get(...start)
+        let piece = this.get(...start)
         const dest = this.get(...end)
+        const {type} = piece;
         if (piece === null || dest === null) return null
         
-        const choices = getChoices(piece, start)
+        let choices = type === 'pawn' && dest instanceof Object ? getChoices(piece, start, true) : getChoices(piece, start);
         console.log('choices: ', choices)
         let endIsChoice = choices.some(choice => choice.join('') === end.join(''))
         console.log('endisChoice: ', endIsChoice)
@@ -63,19 +64,21 @@ class Game extends React.Component {
             console.log(`start: ${start}, end: ${end}, piece: ${JSON.stringify(piece)}`)
             console.log('path: ', path)
             if (path) {
-                const pathIsClear = path.every(coor => this.get(...coor))
+                const pathIsClear = path.every((coor, index) => {
+                    if (index === path.length - 1) return this.get(...coor)
+                    else return this.get(...coor) === true
+                })
                 console.log(`path is clear: `, pathIsClear)
                 if (pathIsClear) {
                     const destHasPiece = dest instanceof Object;
                     console.log('destHasPiece: ', destHasPiece)
-                    const {type} = piece;
                     if (destHasPiece) {
                         //handle capture
+                        if (dest.type === 'king') return false
                         let offense = piece.color
                         let defense = dest.color
                         let canCapture = offense !== defense;
                         if (canCapture) {
-                            if (type === 'pawn') piece = markPawnMovement(piece)
                             this.set(...start, true)
                             this.set(...end, piece)
                             console.log('captured: ', dest)
@@ -99,8 +102,12 @@ class Game extends React.Component {
     }
 
     handleClick(row, col) {
-        // return
-        let {selectedPiece} = this.state;
+        let sel = this.get(row, col)
+        let stopClick = sel === true || sel === null;
+        let {selectedPiece, isWhiteTurn} = this.state;
+        if (stopClick && !selectedPiece) return false
+        const isWrongTeam = isWhiteTurn && sel.color === 'black' || !isWhiteTurn && sel.color === 'white';
+        if (!selectedPiece && isWrongTeam) return false
         if (!selectedPiece) this.setState({selectedPiece: [row, col]})
         else if (selectedPiece) this.movePiece(selectedPiece, [row, col]);
     }
@@ -112,21 +119,16 @@ class Game extends React.Component {
     render() {
         const {board} = this.state;
         return (
-            <ul>
-                <textarea id='src'></textarea>
-                <textarea id='dest'></textarea>
-                <h1 id='move' onClick={() => {
-                    let src = JSON.parse($('#src').val());
-                    let dest = JSON.parse($('#dest').val());
-                    this.movePiece(src, dest)
-                }}>Test Move!</h1>
+            <div>
 
-                <h1 onClick={() => console.log(this.state)}>log state</h1>
 
                 <Board board={board}
                        handleClick={this.handleClick}/>
-                <CancelClick handleOutsideClick={this.handleOutsideClick} />
-            </ul>
+
+                <div>
+                    <CancelClick />
+                </div>
+            </div>
         )
     }
 }

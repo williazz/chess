@@ -10,15 +10,13 @@ table {
 }
 
 td {
-	width: 120px; height: 120px;
+	width: 90px; height: 90px;
 	border: 1px solid black;
 }
 
 td img{
     display: block;
-    margin-left: auto;
-    margin-right: auto;
-
+    margin: auto;
 }
 
 tr:nth-child(odd) td:nth-child(odd), tr:nth-child(even) td:nth-child(even) {

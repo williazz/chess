@@ -4,7 +4,7 @@ const Board = ({board, handleClick}) => (
     <table>
         {board.map((row, rowIndex) => (
             <tr>{row.map((square, colIndex) => (
-                <td onClick={() => handleClick(rowIndex, colIndex)}>
+                <td key={`${rowIndex + colIndex}`} onClick={() => handleClick(rowIndex, colIndex)}>
                     {square === true ? '' : <img src={square.src} />}</td>))}</tr>
         ))}
     </table>

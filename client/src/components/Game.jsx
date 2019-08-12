@@ -5,7 +5,6 @@ const $ = require('jquery')
 
 const getChoices = require('../logic/getChoices.js')
 const getPath = require('../logic/getPath.js')
-const Piece = require('../logic/Piece.js');
 const markPawnMovement = require('../logic/markPawnMovement');
 
 import CancelClick from './CancelClick.jsx';
@@ -56,18 +55,19 @@ class Game extends React.Component {
         if (piece === null || dest === null) return null
         
         const choices = getChoices(piece, start)
-        // console.log('choices: ', choices)
+        console.log('choices: ', choices)
         let endIsChoice = choices.some(choice => choice.join('') === end.join(''))
-        // console.log('endisChoice: ', endIsChoice)
+        console.log('endisChoice: ', endIsChoice)
         if (endIsChoice) {
             const path = getPath(piece, start, end)
-            // console.log('path: ', path)
+            console.log(`start: ${start}, end: ${end}, piece: ${JSON.stringify(piece)}`)
+            console.log('path: ', path)
             if (path) {
                 const pathIsClear = path.every(coor => this.get(...coor))
-                // console.log(`path is clear: `, pathIsClear)
+                console.log(`path is clear: `, pathIsClear)
                 if (pathIsClear) {
                     const destHasPiece = dest instanceof Object;
-                    // console.log('destHasPiece: ', destHasPiece)
+                    console.log('destHasPiece: ', destHasPiece)
                     const {type} = piece;
                     if (destHasPiece) {
                         //handle capture
@@ -78,7 +78,7 @@ class Game extends React.Component {
                             if (type === 'pawn') piece = markPawnMovement(piece)
                             this.set(...start, true)
                             this.set(...end, piece)
-                            // console.log('captured: ', dest)
+                            console.log('captured: ', dest)
                             this.toggleTurn()
                             this.setState({selectedPiece: null});
                             return dest;
@@ -87,7 +87,7 @@ class Game extends React.Component {
                         if (type === 'pawn') piece = markPawnMovement(piece)
                         this.set(...start, true)
                         this.set(...end, piece)
-                        // console.log(`moved ${JSON.stringify(piece)} to ${end}`)
+                        console.log(`moved ${JSON.stringify(piece)} to ${end}`)
                         this.toggleTurn()
                         this.setState({selectedPiece: null});
                         return true;

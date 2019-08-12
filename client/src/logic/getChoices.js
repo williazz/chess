@@ -72,14 +72,4 @@ const getMoveChoices = (piece = defaultPiece, start, attacking = false) => {
     return choices.filter(coordinates => isOnBoard(...coordinates));
 }
 
-let aPiece = {
-    type: 'queen', 
-    color: 'white', 
-    hasMoved: true
-}
-
-let output = getMoveChoices(aPiece, [0, 0], false)
-
-console.log(output)
-
 module.exports = getMoveChoices;

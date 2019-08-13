@@ -1,8 +1,9 @@
-const _ = require('underscore')
-const getChoices = require('./getChoices.js')
-const getPath = require('./getPath.js')
+const _ = require('underscore');
+const getChoices = require('./getChoices.js');
+const getPath = require('./getPath.js');
 const Piece = require('./Piece.js');
-const markPawnMovement = require('./markPawnMovement')
+const markPawnMovement = require('./markPawnMovement');
+const $ = require('jquery');
 
 class Game {
     constructor() {
@@ -11,6 +12,7 @@ class Game {
         this.board[3][3] = new Piece('queen', 'white')
         this.board[6][3] = new Piece('queen', 'black')
     }
+
 
     get(row, col) {
         if (this.board[row] && typeof this.board[row][col]) return this.board[row][col]
@@ -32,7 +34,9 @@ class Game {
 
         const piece = this.get(...start)
         const dest = this.get(...end)
+        const {type} = piece;
         if (piece === null || dest === null) return null
+
         
         const choices = getChoices(piece, start)
         // console.log('choices: ', choices)
@@ -47,7 +51,6 @@ class Game {
                 if (pathIsClear) {
                     const destHasPiece = dest instanceof Object;
                     // console.log('destHasPiece: ', destHasPiece)
-                    const {type} = piece;
                     if (destHasPiece) {
                         //handle capture
                         let offense = piece.color

@@ -3,10 +3,11 @@ import React from 'react';
 const _ = require('underscore')
 const $ = require('jquery')
 
-const getChoices = require('../logic/getChoices.js')
-const getPath = require('../logic/getPath.js')
+const getChoices = require('../logic/getChoices.js');
+const getPath = require('../logic/getPath.js');
 const markMovement = require('../logic/markMovement');
-const emitMove = require('../socket/emitMove.js')
+const emitMove = require('../socket/emitMove.js');
+const handleCastle = require('../logic/handleCastle.js');
 
 import Sidebar from './Sidebar.jsx'
 import Chat from './Chat.jsx'
@@ -29,10 +30,11 @@ class Game extends React.Component {
         this.get = this.get.bind(this);
         this.set = this.set.bind(this);
         this.toggleTurn = this.toggleTurn.bind(this);
-        this.movePiece = this.movePiece.bind(this);
+        this.validateMove = this.validateMove.bind(this);
         this.handleClick = this.handleClick.bind(this);
         this.handleOutsideClick = this.handleOutsideClick.bind(this);
         this.toggleSidebar = this.toggleSidebar.bind(this);
+        this.movePiece = this.movePiece.bind(this);
     }
 
     componentDidMount() {
@@ -41,7 +43,7 @@ class Game extends React.Component {
             let moves = move.split('|').map(coor => JSON.parse(coor));
             let [start, end] = moves;
             console.log(`NEW MOVE: start: `, start, `end: `, end)
-            this.movePiece(start, end);
+            this.validateMove(start, end);
         });
 
         $('form').submit(function(e){
@@ -81,14 +83,41 @@ class Game extends React.Component {
         this.setState({isWhiteTurn})
     }
 
-    movePiece(start = [-1, -1], end = [-1, -1]) {
+    movePiece(start, end, toggle = true) {
+        let piece = this.get(...start)
+        if (piece === true) return
+        let copy = Object.assign({}, markMovement(piece))
+        this.set(...start);
+        this.set(...end, copy);
+        if (toggle) this.toggleTurn()
+        this.setState({selectedPiece: null});
+        console.log(`moved ${JSON.stringify(piece)} to ${end}`)
+    }
+
+    validateMove(start = [-1, -1], end = [-1, -1]) {
 
         let piece = this.get(...start)
         const dest = this.get(...end)
         const {type} = piece;
         if (piece === null || dest === null) return null
 
-        // const isPotentiallyCastling = type === 'king' && (Math.abs(start[1] - end[1]) === 3 || Math.abs(start[1] - end[1]));
+        const isPotentiallyCastling = type === 'king' && (Math.abs(start[1] - end[1]) === 3 || Math.abs(start[1] - end[1]) === 2);
+        console.log('isPotentiallyCastling: ', isPotentiallyCastling)
+        const {board} = this.state;
+
+        if (isPotentiallyCastling) {
+            const kingAndRookHaveNotMoved = handleCastle(start, end, piece, board[0], board[7])
+            console.log('kingAndRookHaveNotMoved: ', kingAndRookHaveNotMoved)
+            
+            if (kingAndRookHaveNotMoved) {
+                const canMoveRook = this.validateMove(...kingAndRookHaveNotMoved)
+                console.log('canMoveRook: ', canMoveRook)
+                if (canMoveRook) {
+                    this.movePiece(start, end, false)
+                    this.movePiece(...kingAndRookHaveNotMoved, false)
+                }
+            }
+        }
 
         let choices = type === 'pawn' && dest instanceof Object ? getChoices(piece, start, true) : getChoices(piece, start);
         console.log('choices: ', choices)
@@ -114,22 +143,18 @@ class Game extends React.Component {
                         let defense = dest.color
                         let canCapture = offense !== defense;
                         if (canCapture) {
-                            piece = markMovement(piece)
-                            this.set(...start, true)
-                            this.set(...end, piece)
-                            console.log('captured: ', dest)
-                            this.toggleTurn()
-                            this.setState({selectedPiece: null});
+                            // piece = markMovement(piece)
+                            // this.set(...start, true)
+                            // this.set(...end, piece)
+                            // console.log('captured: ', dest)
+                            // this.toggleTurn()
+                            // this.setState({selectedPiece: null});
+                            this.movePiece(start, end)
                             return dest;
                         }
                     } else {
                         // if (type === 'pawn') piece = markPawnMovement(piece)
-                        piece = markMovement(piece)
-                        this.set(...start, true)
-                        this.set(...end, piece)
-                        console.log(`moved ${JSON.stringify(piece)} to ${end}`)
-                        this.toggleTurn()
-                        this.setState({selectedPiece: null});
+                        this.movePiece(start, end)
                         return true;
                     }
                 }
@@ -156,7 +181,6 @@ class Game extends React.Component {
         if (!selectedPiece && isWrongTeam) return false
         if (!selectedPiece) this.setState({selectedPiece: [row, col]})
         else if (selectedPiece) {
-            // this.movePiece(selectedPiece, [row, col]);
             emitMove(selectedPiece, [row, col])
         }
     }

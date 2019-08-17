@@ -29,4 +29,5 @@ npm install
 - [ ] Check
 - [ ] Checkmate
 - [ ] Checkmate
+- [ ] Draw
 - [ ] Drag and drop

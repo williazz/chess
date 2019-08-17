@@ -1,6 +1,6 @@
 # Chess!
 
-> This is a multiplayer chess game with a live chat feature!
+> A multiplayer chess game with a live chat feature!
 
 ### Installing
 

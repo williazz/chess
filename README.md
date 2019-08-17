@@ -1,6 +1,6 @@
 # Chess!
 
-> This is a multiplayer chess game! 
+> This is a multiplayer chess game with a live chat feature!
 
 ### Installing
 
@@ -16,6 +16,7 @@ npm install
 * [Express](https://expressjs.com/)
 
 ### Chess Logic Progress
+- [x] Change turn
 - [x] Pawn movement
 - [x] Knight movement
 - [x] Bishop movement

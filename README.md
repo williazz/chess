@@ -15,8 +15,15 @@ npm install
 * [Node.js](https://nodejs.org/en/)
 * [Express](https://expressjs.com/)
 
-### Todos
-
+### Chess Logic Progress
+- [x] Pawn movement
+- [x] Knight movement
+- [x] Bishop movement
+- [x] Rook movement
+- [x] Queen movement
+- [x] King movement
+- [x] Piece capture
+- [x] Castling
 - [ ] En passant
 - [ ] Check
 - [ ] Checkmate
